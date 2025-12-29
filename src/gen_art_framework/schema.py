@@ -80,14 +80,16 @@ def parse_parameter_space(docstring: str) -> ParameterSpace:
     """Parse a docstring containing YAML parameter definitions into a ParameterSpace.
 
     Args:
-        docstring: A docstring containing YAML parameter definitions, either
-                   in a markdown code block or as raw YAML.
+        docstring: A docstring containing YAML starting with 'parameters:' on the
+                   first line.
 
     Returns:
         A ParameterSpace containing the parsed parameter definitions.
 
     Raises:
-        ValueError: If the YAML is malformed or missing required fields.
+        ValueError: If the docstring doesn't start with 'parameters:', the YAML is
+                    malformed, required fields are missing, or parameter names are
+                    duplicated.
     """
     # Extract YAML content
     yaml_content = _extract_yaml_from_docstring(docstring)
