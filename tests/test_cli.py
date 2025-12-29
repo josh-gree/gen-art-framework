@@ -248,3 +248,14 @@ Image.new("RGB", (10, 10))
         ])
 
         assert result.exit_code != 0
+
+    def test_syntax_error_in_script(self, tmp_path: Path):
+        """Error for script with syntax error."""
+        script = tmp_path / "script.py"
+        script.write_text("def broken(\n")
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["sample", str(script)])
+
+        assert result.exit_code != 0
+        assert "syntax error" in result.output

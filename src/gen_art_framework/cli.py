@@ -49,7 +49,12 @@ def sample(script: Path, count: int, output: Path, seed: int | None):
     script_content = script.read_text()
 
     # Extract docstring from script
-    docstring = _extract_docstring(script_content)
+    try:
+        docstring = _extract_docstring(script_content)
+    except SyntaxError as e:
+        raise click.ClickException(
+            f"Script '{script}' has a syntax error: {e.msg} (line {e.lineno})"
+        ) from e
     if docstring is None:
         raise click.ClickException(
             f"Script '{script}' has no docstring with parameter space."
@@ -102,12 +107,12 @@ def sample(script: Path, count: int, output: Path, seed: int | None):
 
 
 def _extract_docstring(script_content: str) -> str | None:
-    """Extract the module docstring from script content."""
-    try:
-        tree = ast.parse(script_content)
-    except SyntaxError:
-        return None
+    """Extract the module docstring from script content.
 
+    Raises:
+        SyntaxError: If the script contains invalid Python syntax.
+    """
+    tree = ast.parse(script_content)
     return ast.get_docstring(tree)
 
 
