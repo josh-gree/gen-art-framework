@@ -77,46 +77,14 @@ def _extract_yaml_from_docstring(docstring: str) -> str:
     raise ValueError("No YAML content found in docstring")
 
 
-def _validate_uniform(args: dict[str, Any], name: str) -> None:
-    """Validate uniform distribution parameters."""
-    if "low" not in args:
-        raise ValueError(f"Parameter '{name}': uniform distribution requires 'low' field")
-    if "high" not in args:
-        raise ValueError(f"Parameter '{name}': uniform distribution requires 'high' field")
-
-
-def _validate_normal(args: dict[str, Any], name: str) -> None:
-    """Validate normal distribution parameters."""
-    if "mean" not in args:
-        raise ValueError(f"Parameter '{name}': normal distribution requires 'mean' field")
-    if "std" not in args:
-        raise ValueError(f"Parameter '{name}': normal distribution requires 'std' field")
-
-
-def _validate_choice(args: dict[str, Any], name: str) -> None:
-    """Validate choice distribution parameters."""
-    if "values" not in args:
-        raise ValueError(f"Parameter '{name}': choice distribution requires 'values' field")
-    if not isinstance(args["values"], list):
-        raise ValueError(f"Parameter '{name}': choice 'values' must be a list")
-
-
-def _validate_constant(args: dict[str, Any], name: str) -> None:
-    """Validate constant distribution parameters."""
-    if "value" not in args:
-        raise ValueError(f"Parameter '{name}': constant distribution requires 'value' field")
-
-
-_VALIDATORS = {
-    "uniform": _validate_uniform,
-    "normal": _validate_normal,
-    "choice": _validate_choice,
-    "constant": _validate_constant,
-}
-
-
 def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
-    """Validate and convert a parameter dict to ParameterDefinition."""
+    """Validate and convert a parameter dict to ParameterDefinition.
+
+    Only validates structure (name and distribution fields required).
+    Distribution-specific validation is handled by the distributions module.
+    """
+    if not isinstance(param_dict, dict):
+        raise ValueError("Parameter definition must be a mapping")
     if "name" not in param_dict:
         raise ValueError("Parameter definition missing 'name' field")
     if "distribution" not in param_dict:
@@ -125,17 +93,8 @@ def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
     name = param_dict["name"]
     distribution = param_dict["distribution"]
 
-    if distribution not in _VALIDATORS:
-        raise ValueError(
-            f"Parameter '{name}': unknown distribution type '{distribution}'. "
-            f"Supported types: {', '.join(_VALIDATORS.keys())}"
-        )
-
     # Extract args (everything except name and distribution)
     args = {k: v for k, v in param_dict.items() if k not in ("name", "distribution")}
-
-    # Validate distribution-specific requirements
-    _VALIDATORS[distribution](args, name)
 
     return ParameterDefinition(name=name, distribution=distribution, args=args)
 

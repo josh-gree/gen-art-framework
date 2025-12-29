@@ -76,11 +76,11 @@ class TestYAMLExtraction:
             parse_parameter_space("Just some text without YAML")
 
 
-class TestUniformDistribution:
-    """Tests for uniform distribution parsing."""
+class TestDistributionParsing:
+    """Tests for distribution parsing (structural only, no validation)."""
 
-    def test_valid_uniform(self):
-        """Parses valid uniform distribution."""
+    def test_uniform_distribution(self):
+        """Parses uniform distribution with args."""
         docstring = """
         ```yaml
         parameters:
@@ -96,38 +96,8 @@ class TestUniformDistribution:
         assert param.args["low"] == 0.0
         assert param.args["high"] == 10.0
 
-    def test_uniform_missing_low_raises(self):
-        """Raises ValueError when uniform missing 'low'."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: uniform
-            high: 10.0
-        ```
-        """
-        with pytest.raises(ValueError, match="requires 'low' field"):
-            parse_parameter_space(docstring)
-
-    def test_uniform_missing_high_raises(self):
-        """Raises ValueError when uniform missing 'high'."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: uniform
-            low: 0.0
-        ```
-        """
-        with pytest.raises(ValueError, match="requires 'high' field"):
-            parse_parameter_space(docstring)
-
-
-class TestNormalDistribution:
-    """Tests for normal distribution parsing."""
-
-    def test_valid_normal(self):
-        """Parses valid normal distribution."""
+    def test_normal_distribution(self):
+        """Parses normal distribution with args."""
         docstring = """
         ```yaml
         parameters:
@@ -143,38 +113,8 @@ class TestNormalDistribution:
         assert param.args["mean"] == 0.0
         assert param.args["std"] == 1.0
 
-    def test_normal_missing_mean_raises(self):
-        """Raises ValueError when normal missing 'mean'."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: normal
-            std: 1.0
-        ```
-        """
-        with pytest.raises(ValueError, match="requires 'mean' field"):
-            parse_parameter_space(docstring)
-
-    def test_normal_missing_std_raises(self):
-        """Raises ValueError when normal missing 'std'."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: normal
-            mean: 0.0
-        ```
-        """
-        with pytest.raises(ValueError, match="requires 'std' field"):
-            parse_parameter_space(docstring)
-
-
-class TestChoiceDistribution:
-    """Tests for choice distribution parsing."""
-
-    def test_valid_choice(self):
-        """Parses valid choice distribution."""
+    def test_choice_distribution(self):
+        """Parses choice distribution with args."""
         docstring = """
         ```yaml
         parameters:
@@ -188,37 +128,8 @@ class TestChoiceDistribution:
         assert param.distribution == "choice"
         assert param.args["values"] == ["red", "green", "blue"]
 
-    def test_choice_missing_values_raises(self):
-        """Raises ValueError when choice missing 'values'."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: choice
-        ```
-        """
-        with pytest.raises(ValueError, match="requires 'values' field"):
-            parse_parameter_space(docstring)
-
-    def test_choice_values_not_list_raises(self):
-        """Raises ValueError when choice 'values' is not a list."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: choice
-            values: "not a list"
-        ```
-        """
-        with pytest.raises(ValueError, match="must be a list"):
-            parse_parameter_space(docstring)
-
-
-class TestConstantDistribution:
-    """Tests for constant distribution parsing."""
-
-    def test_valid_constant(self):
-        """Parses valid constant distribution."""
+    def test_constant_distribution(self):
+        """Parses constant distribution with args."""
         docstring = """
         ```yaml
         parameters:
@@ -232,17 +143,34 @@ class TestConstantDistribution:
         assert param.distribution == "constant"
         assert param.args["value"] == 42
 
-    def test_constant_missing_value_raises(self):
-        """Raises ValueError when constant missing 'value'."""
+    def test_unknown_distribution_accepted(self):
+        """Accepts unknown distribution types (validation deferred to distributions module)."""
         docstring = """
         ```yaml
         parameters:
           - name: x
-            distribution: constant
+            distribution: custom_dist
+            custom_arg: 123
         ```
         """
-        with pytest.raises(ValueError, match="requires 'value' field"):
-            parse_parameter_space(docstring)
+        result = parse_parameter_space(docstring)
+        param = result["x"]
+        assert param.distribution == "custom_dist"
+        assert param.args["custom_arg"] == 123
+
+    def test_distribution_with_missing_args_accepted(self):
+        """Accepts distributions with missing args (validation deferred to distributions module)."""
+        docstring = """
+        ```yaml
+        parameters:
+          - name: x
+            distribution: uniform
+        ```
+        """
+        result = parse_parameter_space(docstring)
+        param = result["x"]
+        assert param.distribution == "uniform"
+        assert param.args == {}
 
 
 class TestValidationErrors:
@@ -287,18 +215,6 @@ class TestValidationErrors:
         with pytest.raises(ValueError, match="missing 'distribution' field"):
             parse_parameter_space(docstring)
 
-    def test_unknown_distribution_raises(self):
-        """Raises ValueError for unknown distribution type."""
-        docstring = """
-        ```yaml
-        parameters:
-          - name: x
-            distribution: unknown_dist
-        ```
-        """
-        with pytest.raises(ValueError, match="unknown distribution type"):
-            parse_parameter_space(docstring)
-
     def test_missing_parameters_key_raises(self):
         """Raises ValueError when YAML missing 'parameters' key."""
         docstring = """
@@ -321,6 +237,19 @@ class TestValidationErrors:
         ```
         """
         with pytest.raises(ValueError, match="must be a list"):
+            parse_parameter_space(docstring)
+
+    def test_parameter_not_dict_raises(self):
+        """Raises ValueError when parameter item is not a dict."""
+        docstring = """
+        ```yaml
+        parameters:
+          - 1
+          - 2
+          - 3
+        ```
+        """
+        with pytest.raises(ValueError, match="must be a mapping"):
             parse_parameter_space(docstring)
 
 
