@@ -106,6 +106,9 @@ The PIL Image produced by the script.
 A single parameter definition.
 
 ```python
+from dataclasses import dataclass
+from typing import Any
+
 @dataclass
 class ParameterDefinition:
     name: str              # Parameter name
@@ -118,6 +121,8 @@ class ParameterDefinition:
 Container for multiple parameter definitions. Supports iteration and lookup by name.
 
 ```python
+from dataclasses import dataclass
+
 @dataclass
 class ParameterSpace:
     parameters: list[ParameterDefinition]
@@ -145,6 +150,7 @@ print(width_param.args)  # {"value": 800}
 Generate multiple images programmatically:
 
 ```python
+import ast
 from pathlib import Path
 import numpy as np
 from gen_art_framework import (
@@ -154,10 +160,9 @@ from gen_art_framework import (
 )
 
 # Read script and parse parameter space
-# Note: This simple extraction won't work with single-quote docstrings
-# or scripts containing other triple-quoted strings
 script_path = Path("circles.py")
-docstring = script_path.read_text().split('"""')[1]
+tree = ast.parse(script_path.read_text())
+docstring = ast.get_docstring(tree)
 space = parse_parameter_space(docstring)
 
 # Generate 10 images with different seeds

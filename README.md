@@ -21,6 +21,9 @@ Create a script with a YAML parameter block in its docstring:
 ```python
 """
 parameters:
+  - name: seed
+    distribution: constant
+    value: 42
   - name: width
     distribution: constant
     value: 800
@@ -38,6 +41,8 @@ parameters:
 
 from PIL import Image, ImageDraw
 import random
+
+random.seed(seed)
 
 img = Image.new("RGB", (width, height), "#1a1a2e")
 draw = ImageDraw.Draw(img)

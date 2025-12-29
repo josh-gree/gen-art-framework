@@ -73,10 +73,12 @@ Samples a floating-point value from a uniform distribution. Uses `scipy.stats.un
 
 **Arguments:**
 
-- `loc` (required) - Lower bound
-- `scale` (required) - Width of the distribution
+- `loc` (required) - Lower bound (minimum value)
+- `scale` (required) - Width of the distribution (not the upper bound!)
 
 The sampled value will be in the range `[loc, loc + scale)`.
+
+**Important:** Unlike a typical `uniform(min, max)` interface, scipy uses `loc` and `scale` where `scale` is the *width* of the distribution. To sample from `[min, max)`, set `loc = min` and `scale = max - min`.
 
 **Example:** To sample from `[0.5, 1.5)`:
 

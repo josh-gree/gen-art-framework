@@ -54,6 +54,20 @@ gen-art sample my_script.py -n 5 -s 42
 gen-art sample my_script.py -n 5 -s 42
 ```
 
+### Two-Level Seeding
+
+When you provide `--seed`, the CLI uses a two-level seeding mechanism:
+
+1. **Master RNG**: Initialised with your provided seed
+2. **Per-sample seeds**: The master RNG generates a unique derived seed for each image
+
+This means:
+- Running the same command twice produces identical batches
+- Each image within a batch has a different seed (shown in the filename)
+- The derived seeds are deterministic based on your master seed
+
+For example, `gen-art sample circles.py -n 3 -s 42` will always produce the same three images with the same derived seeds, but each image uses a different seed for its randomness.
+
 When no seed is provided, a random seed is generated and printed to stderr:
 
 ```
