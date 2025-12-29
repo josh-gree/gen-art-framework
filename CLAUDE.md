@@ -18,3 +18,7 @@ Run `just` to see available commands (test, lint, format, shell, jupyter).
 - Add runtime deps: `uv add <package>`
 - Add dev deps: `uv add --dev <package>`
 - Run anything: `uv run <command>`
+
+## Code Style
+
+- Keep imports at module level unless there's a meaningful reason not to (e.g. circular imports, optional dependencies)
