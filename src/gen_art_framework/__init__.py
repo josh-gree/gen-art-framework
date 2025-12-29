@@ -1,3 +1,4 @@
+from gen_art_framework.distributions import sample_parameter_space
 from gen_art_framework.schema import (
     ParameterDefinition,
     ParameterSpace,
@@ -13,5 +14,6 @@ __all__ = [
     "ParameterDefinition",
     "ParameterSpace",
     "parse_parameter_space",
+    "sample_parameter_space",
     "hello",
 ]
