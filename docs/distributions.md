@@ -31,7 +31,7 @@ Randomly selects from a list of values.
 **Arguments:**
 
 - `values` (required) - List of values to choose from
-- `weights` (optional) - List of weights for each value (must match length of `values`)
+- `weights` (optional) - List of weights for each value (must match length of `values` and sum to 1.0)
 
 **Weighted example:**
 
@@ -89,7 +89,9 @@ The sampled value will be in the range `[loc, loc + scale)`.
 
 ## scipy.stats Distributions
 
-Any distribution from `scipy.stats` can be used by name. Arguments are passed directly to the distribution's `rvs()` method.
+Continuous and discrete distributions from `scipy.stats` can be used by name (`rv_continuous` and `rv_discrete` instances). Arguments are passed directly to the distribution's `rvs()` method.
+
+**Note:** This excludes some scipy.stats objects like `multivariate_normal` which are not `rv_continuous` or `rv_discrete` instances.
 
 ### Common Examples
 

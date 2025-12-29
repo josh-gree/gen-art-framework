@@ -82,7 +82,7 @@ img  # Bare variable name as final expression
 ```python
 img = Image.new("RGB", (100, 100))
 # ... drawing code ...
-img = img  # This is an assignment, not an expression
+img.save("output.png")  # save() returns None, not the image
 ```
 
 **Also incorrect:**

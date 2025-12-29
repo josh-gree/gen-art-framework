@@ -41,7 +41,7 @@ print(space["width"].distribution)  # "constant"
 
 **Raises:**
 
-- `ValueError` - If the YAML is malformed, missing required fields, or contains reserved parameter names
+- `ValueError` - If the YAML is malformed, missing required fields, contains reserved parameter names, or has duplicate parameter names
 
 ### `sample_parameter_space(space: ParameterSpace, rng: np.random.Generator) -> dict[str, Any]`
 
@@ -66,6 +66,10 @@ params = sample_parameter_space(space, rng)
 **Returns:**
 
 A dictionary mapping parameter names to sampled values.
+
+**Raises:**
+
+- `ValueError` - If the distribution type is unknown, or if distribution arguments are invalid (e.g., missing `value` for `constant`, weights that don't sum to 1.0 for `choice`)
 
 ### `execute_script(script_path: Path | str, parameters: dict[str, Any]) -> Image.Image`
 
@@ -131,7 +135,7 @@ for param in space:
 # Length
 print(len(space))  # Number of parameters
 
-# Lookup by name
+# Lookup by name (raises KeyError if parameter doesn't exist)
 width_param = space["width"]
 print(width_param.args)  # {"value": 800}
 ```
@@ -150,6 +154,8 @@ from gen_art_framework import (
 )
 
 # Read script and parse parameter space
+# Note: This simple extraction won't work with single-quote docstrings
+# or scripts containing other triple-quoted strings
 script_path = Path("circles.py")
 docstring = script_path.read_text().split('"""')[1]
 space = parse_parameter_space(docstring)
