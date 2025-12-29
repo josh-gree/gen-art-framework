@@ -7,7 +7,9 @@ authors = [
     { name = "josh-gree", email = "joshuadouglasgreenhalgh@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0.3",
+]
 
 [build-system]
 requires = ["uv_build>=0.9.18,<0.10.0"]
