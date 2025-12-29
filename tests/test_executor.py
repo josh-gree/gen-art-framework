@@ -158,3 +158,19 @@ import nonexistent_module_xyz
         with pytest.raises(ValueError, match="Script execution failed") as exc_info:
             execute_script(script, {})
         assert "ModuleNotFoundError" in str(exc_info.value)
+
+    def test_script_not_found_raises(self, tmp_path: Path):
+        """Raises ValueError when script file doesn't exist."""
+        script = tmp_path / "nonexistent.py"
+        with pytest.raises(ValueError, match="Script not found"):
+            execute_script(script, {})
+
+    def test_accepts_string_path(self, tmp_path: Path):
+        """Accepts a string path as well as Path object."""
+        script = tmp_path / "script.py"
+        script.write_text("""
+from PIL import Image
+Image.new("RGB", (10, 10))
+""")
+        result = execute_script(str(script), {})
+        assert isinstance(result, Image.Image)

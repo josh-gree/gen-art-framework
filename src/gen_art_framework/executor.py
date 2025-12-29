@@ -8,7 +8,9 @@ from typing import Any
 from PIL import Image
 
 
-def execute_script(script_path: Path, parameters: dict[str, Any]) -> Image.Image:
+def execute_script(
+    script_path: Path | str, parameters: dict[str, Any]
+) -> Image.Image:
     """Execute a script file with parameters injected as globals.
 
     Args:
@@ -19,9 +21,15 @@ def execute_script(script_path: Path, parameters: dict[str, Any]) -> Image.Image
         The PIL Image produced by the script's final expression.
 
     Raises:
-        ValueError: If the script doesn't produce a PIL Image or execution fails.
+        ValueError: If the script doesn't exist, doesn't produce a PIL Image,
+            or execution fails.
     """
-    script_content = script_path.read_text()
+    script_path = Path(script_path)
+
+    try:
+        script_content = script_path.read_text()
+    except FileNotFoundError:
+        raise ValueError(f"Script not found: {script_path}") from None
 
     try:
         tree = ast.parse(script_content, filename=str(script_path))
