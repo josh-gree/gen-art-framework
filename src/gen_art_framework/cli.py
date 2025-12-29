@@ -1,5 +1,6 @@
 """Command-line interface for gen-art-framework."""
 
+import ast
 from pathlib import Path
 
 import click
@@ -22,7 +23,7 @@ def cli():
     "--count",
     "-n",
     default=1,
-    type=int,
+    type=click.IntRange(min=1),
     help="Number of images to generate.",
 )
 @click.option(
@@ -102,8 +103,6 @@ def sample(script: Path, count: int, output: Path, seed: int | None):
 
 def _extract_docstring(script_content: str) -> str | None:
     """Extract the module docstring from script content."""
-    import ast
-
     try:
         tree = ast.parse(script_content)
     except SyntaxError:
