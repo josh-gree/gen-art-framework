@@ -53,20 +53,33 @@ def _sample_distribution(
     """
     # Handle special cases
     if distribution == "constant":
+        if "value" not in args:
+            raise ValueError("'constant' distribution requires a 'value' argument.")
         return args["value"]
 
     if distribution == "choice":
+        if "values" not in args:
+            raise ValueError("'choice' distribution requires a 'values' argument.")
         values = args["values"]
-        idx = rng.integers(0, len(values))
+        if not values:
+            raise ValueError("'choice' distribution requires a non-empty 'values' list.")
+        weights = args.get("weights")
+        if weights is not None and len(weights) != len(values):
+            raise ValueError(
+                f"'choice' distribution 'weights' length ({len(weights)}) "
+                f"must match 'values' length ({len(values)})."
+            )
+        idx = rng.choice(len(values), p=weights)
         return values[idx]
 
     # Look up scipy distribution
-    try:
-        dist = getattr(scipy.stats, distribution)
-    except AttributeError:
+    dist = getattr(scipy.stats, distribution, None)
+    if dist is None or not isinstance(
+        dist, (scipy.stats.rv_continuous, scipy.stats.rv_discrete)
+    ):
         raise ValueError(
             f"Unknown distribution '{distribution}'. "
             f"Must be 'constant', 'choice', or a valid scipy.stats distribution."
-        ) from None
+        )
 
     return dist.rvs(random_state=rng, **args)
