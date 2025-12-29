@@ -2488,3 +2488,41 @@ Hook data: {
   },
   "tool_use_id": "toolu_01DCzkEXkYEgUckZW87Egyru"
 }
+Hook data: {
+  "session_id": "5cb99867-e1de-4b55-b90a-88d539e71930",
+  "transcript_path": "/Users/josh-gree/.claude/projects/-Users-josh-gree-src-gen-art-framework/5cb99867-e1de-4b55-b90a-88d539e71930.jsonl",
+  "cwd": "/Users/josh-gree/src/gen-art-framework",
+  "permission_mode": "default",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "git add -A && git commit -m \"Update docstring to reflect strict parameters: format\" && git push",
+    "description": "Commit and push docstring fix"
+  },
+  "tool_response": {
+    "stdout": "[2-parameter-space-parsing 429ee7e] Update docstring to reflect strict parameters: format\n 2 files changed, 176 insertions(+), 3 deletions(-)\nTo github.com:josh-gree/gen-art-framework.git\n   524a23f..429ee7e  2-parameter-space-parsing -> 2-parameter-space-parsing",
+    "stderr": "",
+    "interrupted": false,
+    "isImage": false
+  },
+  "tool_use_id": "toolu_01QZpA3PxGzgUGtPTJ7th3Pe"
+}
+Hook data: {
+  "session_id": "5cb99867-e1de-4b55-b90a-88d539e71930",
+  "transcript_path": "/Users/josh-gree/.claude/projects/-Users-josh-gree-src-gen-art-framework/5cb99867-e1de-4b55-b90a-88d539e71930.jsonl",
+  "cwd": "/Users/josh-gree/src/gen-art-framework",
+  "permission_mode": "default",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "uv run pytest tests/test_schema.py -v",
+    "description": "Run schema tests"
+  },
+  "tool_response": {
+    "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.11, pytest-9.0.2, pluggy-1.6.0 -- /Users/josh-gree/src/gen-art-framework/.venv/bin/python\ncachedir: .pytest_cache\nrootdir: /Users/josh-gree/src/gen-art-framework\nconfigfile: pyproject.toml\nplugins: anyio-4.12.0, cov-7.0.0\ncollecting ... collected 24 items\n\ntests/test_schema.py::TestDocstringFormat::test_parses_valid_docstring PASSED [  4%]\ntests/test_schema.py::TestDocstringFormat::test_strips_leading_whitespace PASSED [  8%]\ntests/test_schema.py::TestDocstringFormat::test_empty_docstring_raises PASSED [ 12%]\ntests/test_schema.py::TestDocstringFormat::test_docstring_not_starting_with_parameters_raises PASSED [ 16%]\ntests/test_schema.py::TestDocstringFormat::test_no_parameters_key_raises PASSED [ 20%]\ntests/test_schema.py::TestDistributionParsing::test_uniform_distribution PASSED [ 25%]\ntests/test_schema.py::TestDistributionParsing::test_normal_distribution PASSED [ 29%]\ntests/test_schema.py::TestDistributionParsing::test_choice_distribution PASSED [ 33%]\ntests/test_schema.py::TestDistributionParsing::test_constant_distribution PASSED [ 37%]\ntests/test_schema.py::TestDistributionParsing::test_unknown_distribution_accepted PASSED [ 41%]\ntests/test_schema.py::TestDistributionParsing::test_distribution_with_missing_args_accepted PASSED [ 45%]\ntests/test_schema.py::TestValidationErrors::test_malformed_yaml_raises PASSED [ 50%]\ntests/test_schema.py::TestValidationErrors::test_missing_name_raises PASSED [ 54%]\ntests/test_schema.py::TestValidationErrors::test_missing_distribution_raises PASSED [ 58%]\ntests/test_schema.py::TestValidationErrors::test_parameters_not_list_raises PASSED [ 62%]\ntests/test_schema.py::TestValidationErrors::test_parameter_not_dict_raises PASSED [ 66%]\ntests/test_schema.py::TestValidationErrors::test_duplicate_names_raises PASSED [ 70%]\ntests/test_schema.py::TestValidationErrors::test_name_not_string_raises PASSED [ 75%]\ntests/test_schema.py::TestValidationErrors::test_distribution_not_string_raises PASSED [ 79%]\ntests/test_schema.py::TestParameterSpace::test_iteration PASSED          [ 83%]\ntests/test_schema.py::TestParameterSpace::test_len PASSED                [ 87%]\ntests/test_schema.py::TestParameterSpace::test_getitem_by_name PASSED    [ 91%]\ntests/test_schema.py::TestParameterSpace::test_getitem_unknown_raises PASSED [ 95%]\ntests/test_schema.py::TestMultipleParameters::test_multiple_different_distributions PASSED [100%]\n\n============================== 24 passed in 0.02s ==============================",
+    "stderr": "",
+    "interrupted": false,
+    "isImage": false
+  },
+  "tool_use_id": "toolu_01SarC7J145AtupxWASpRdiU"
+}

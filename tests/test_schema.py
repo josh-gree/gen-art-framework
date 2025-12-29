@@ -217,6 +217,27 @@ class TestValidationErrors:
         with pytest.raises(ValueError, match="Duplicate parameter names: x"):
             parse_parameter_space(docstring)
 
+    def test_name_not_string_raises(self):
+        """Raises ValueError when name is not a string."""
+        docstring = dedent("""
+            parameters:
+              - name: 123
+                distribution: constant
+                value: 1
+        """)
+        with pytest.raises(ValueError, match="'name' must be a string"):
+            parse_parameter_space(docstring)
+
+    def test_distribution_not_string_raises(self):
+        """Raises ValueError when distribution is not a string."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: [a, b, c]
+        """)
+        with pytest.raises(ValueError, match="'distribution' must be a string"):
+            parse_parameter_space(docstring)
+
 
 class TestParameterSpace:
     """Tests for ParameterSpace container functionality."""

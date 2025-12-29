@@ -70,6 +70,11 @@ def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
     name = param_dict["name"]
     distribution = param_dict["distribution"]
 
+    if not isinstance(name, str):
+        raise ValueError(f"Parameter 'name' must be a string, got {type(name).__name__}")
+    if not isinstance(distribution, str):
+        raise ValueError(f"Parameter '{name}' 'distribution' must be a string, got {type(distribution).__name__}")
+
     # Extract args (everything except name and distribution)
     args = {k: v for k, v in param_dict.items() if k not in ("name", "distribution")}
 
