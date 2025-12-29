@@ -110,4 +110,10 @@ def parse_parameter_space(docstring: str) -> ParameterSpace:
     # Validate and convert each parameter
     parameters = [_validate_parameter(p) for p in data["parameters"]]
 
+    # Check for duplicate names
+    names = [p.name for p in parameters]
+    duplicates = [name for name in names if names.count(name) > 1]
+    if duplicates:
+        raise ValueError(f"Duplicate parameter names: {', '.join(sorted(set(duplicates)))}")
+
     return ParameterSpace(parameters=parameters)

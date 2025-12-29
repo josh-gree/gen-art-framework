@@ -202,6 +202,21 @@ class TestValidationErrors:
         with pytest.raises(ValueError, match="must be a mapping"):
             parse_parameter_space(docstring)
 
+    def test_duplicate_names_raises(self):
+        """Raises ValueError when parameter names are duplicated."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                low: 0
+                high: 1
+              - name: x
+                distribution: constant
+                value: 5
+        """)
+        with pytest.raises(ValueError, match="Duplicate parameter names: x"):
+            parse_parameter_space(docstring)
+
 
 class TestParameterSpace:
     """Tests for ParameterSpace container functionality."""
