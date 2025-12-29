@@ -174,3 +174,20 @@ Image.new("RGB", (10, 10))
 """)
         result = execute_script(str(script), {})
         assert isinstance(result, Image.Image)
+
+    def test_empty_script_raises(self, tmp_path: Path):
+        """Raises ValueError for empty script."""
+        script = tmp_path / "script.py"
+        script.write_text("")
+        with pytest.raises(ValueError, match="must return a PIL Image, got None"):
+            execute_script(script, {})
+
+    def test_comment_only_script_raises(self, tmp_path: Path):
+        """Raises ValueError for script with only comments."""
+        script = tmp_path / "script.py"
+        script.write_text("""
+# This script only has comments
+# No actual code
+""")
+        with pytest.raises(ValueError, match="must return a PIL Image, got None"):
+            execute_script(script, {})
