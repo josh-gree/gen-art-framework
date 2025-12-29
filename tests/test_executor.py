@@ -57,7 +57,7 @@ b
 from PIL import Image
 img = Image.new("RGB", (10, 10))
 """)
-        with pytest.raises(ValueError, match="must return a PIL Image"):
+        with pytest.raises(ValueError, match="must end with an expression"):
             execute_script(script, {})
 
     def test_expression_with_computation(self, tmp_path: Path):
@@ -179,7 +179,7 @@ Image.new("RGB", (10, 10))
         """Raises ValueError for empty script."""
         script = tmp_path / "script.py"
         script.write_text("")
-        with pytest.raises(ValueError, match="must return a PIL Image, got None"):
+        with pytest.raises(ValueError, match="must end with an expression"):
             execute_script(script, {})
 
     def test_comment_only_script_raises(self, tmp_path: Path):
@@ -189,5 +189,5 @@ Image.new("RGB", (10, 10))
 # This script only has comments
 # No actual code
 """)
-        with pytest.raises(ValueError, match="must return a PIL Image, got None"):
+        with pytest.raises(ValueError, match="must end with an expression"):
             execute_script(script, {})

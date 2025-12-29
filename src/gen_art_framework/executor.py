@@ -37,8 +37,9 @@ def execute_script(
         raise ValueError(f"Syntax error in script: {e}") from e
 
     result_var = "_result_"
+    has_final_expression = tree.body and isinstance(tree.body[-1], ast.Expr)
 
-    if tree.body and isinstance(tree.body[-1], ast.Expr):
+    if has_final_expression:
         last_expr = tree.body[-1]
         assignment = ast.Assign(
             targets=[ast.Name(id=result_var, ctx=ast.Store())],
@@ -61,6 +62,12 @@ def execute_script(
     result = exec_globals.get(result_var)
 
     if not isinstance(result, Image.Image):
+        if not has_final_expression:
+            raise ValueError(
+                "Script must end with an expression that evaluates to a PIL Image. "
+                "Add the image variable as a bare expression on the last line "
+                "(e.g., 'img' not 'img = ...')."
+            )
         result_type = type(result).__name__ if result is not None else "None"
         raise ValueError(
             f"Script must return a PIL Image, got {result_type}. "
