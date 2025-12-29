@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -40,41 +39,19 @@ class ParameterSpace:
 def _extract_yaml_from_docstring(docstring: str) -> str:
     """Extract YAML content from a docstring.
 
-    Handles YAML embedded in markdown code blocks (```yaml ... ```) or raw YAML.
+    The docstring must be raw YAML starting with 'parameters:' on the first line.
     """
     if not docstring:
         raise ValueError("Docstring is empty")
 
-    # Try to extract from markdown code block first
-    # Match ```yaml or ```yml or just ```
-    code_block_pattern = r"```(?:ya?ml)?\s*\n(.*?)```"
-    match = re.search(code_block_pattern, docstring, re.DOTALL)
+    content = docstring.strip()
 
-    if match:
-        return match.group(1).strip()
+    # First line must start with 'parameters:'
+    first_line = content.split("\n")[0].strip()
+    if not first_line.startswith("parameters:"):
+        raise ValueError("Docstring must start with 'parameters:'")
 
-    # If no code block, try to find raw YAML (look for parameters: key)
-    if "parameters:" in docstring:
-        # Find the YAML section starting from 'parameters:'
-        lines = docstring.split("\n")
-        yaml_lines = []
-        in_yaml = False
-
-        for line in lines:
-            if "parameters:" in line and not in_yaml:
-                in_yaml = True
-                yaml_lines.append(line)
-            elif in_yaml:
-                # Stop at empty line followed by non-indented text or end of string
-                if line.strip() and not line.startswith(" ") and not line.startswith("\t"):
-                    if yaml_lines and not line.startswith("-"):
-                        break
-                yaml_lines.append(line)
-
-        if yaml_lines:
-            return "\n".join(yaml_lines).strip()
-
-    raise ValueError("No YAML content found in docstring")
+    return content
 
 
 def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
