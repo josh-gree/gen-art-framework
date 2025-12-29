@@ -13,6 +13,10 @@ def execute_script(
 ) -> Image.Image:
     """Execute a script file with parameters injected as globals.
 
+    The script is executed using exec() with full system access. Only run
+    scripts you trust - they can read/write files, make network requests,
+    and execute arbitrary code.
+
     Args:
         script_path: Path to the Python script to execute.
         parameters: Dictionary of parameter values to inject as globals.
