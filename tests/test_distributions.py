@@ -186,6 +186,22 @@ class TestConstantDistribution:
 
         assert result1["x"] == result2["x"] == 123
 
+    def test_constant_missing_value_raises_error(self):
+        """Constant distribution without value raises ValueError."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: constant
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        with pytest.raises(ValueError) as excinfo:
+            sample_parameter_space(space, rng)
+
+        assert "constant" in str(excinfo.value)
+        assert "value" in str(excinfo.value)
+
 
 class TestChoiceDistribution:
     """Tests for choice distribution."""
@@ -238,6 +254,92 @@ class TestChoiceDistribution:
 
         assert result["size"] in [10, 20, 30, 40]
 
+    def test_choice_missing_values_raises_error(self):
+        """Choice distribution without values raises ValueError."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: choice
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        with pytest.raises(ValueError) as excinfo:
+            sample_parameter_space(space, rng)
+
+        assert "choice" in str(excinfo.value)
+        assert "values" in str(excinfo.value)
+
+    def test_choice_empty_values_raises_error(self):
+        """Choice distribution with empty values raises ValueError."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: choice
+                values: []
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        with pytest.raises(ValueError) as excinfo:
+            sample_parameter_space(space, rng)
+
+        assert "choice" in str(excinfo.value)
+        assert "non-empty" in str(excinfo.value)
+
+    def test_choice_with_weights(self):
+        """Choice distribution supports weighted selection."""
+        docstring = dedent("""
+            parameters:
+              - name: colour
+                distribution: choice
+                values: ["red", "green", "blue"]
+                weights: [0.8, 0.1, 0.1]
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+
+        assert result["colour"] in ["red", "green", "blue"]
+
+    def test_choice_with_weights_deterministic(self):
+        """Weighted choice is deterministic with same seed."""
+        docstring = dedent("""
+            parameters:
+              - name: colour
+                distribution: choice
+                values: ["red", "green", "blue"]
+                weights: [0.8, 0.1, 0.1]
+        """)
+        space = parse_parameter_space(docstring)
+
+        rng1 = np.random.default_rng(42)
+        rng2 = np.random.default_rng(42)
+
+        result1 = sample_parameter_space(space, rng1)
+        result2 = sample_parameter_space(space, rng2)
+
+        assert result1["colour"] == result2["colour"]
+
+    def test_choice_weights_length_mismatch_raises_error(self):
+        """Choice distribution with mismatched weights length raises ValueError."""
+        docstring = dedent("""
+            parameters:
+              - name: colour
+                distribution: choice
+                values: ["red", "green", "blue"]
+                weights: [0.5, 0.5]
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        with pytest.raises(ValueError) as excinfo:
+            sample_parameter_space(space, rng)
+
+        assert "weights" in str(excinfo.value)
+        assert "length" in str(excinfo.value)
+
 
 class TestUnknownDistribution:
     """Tests for unknown distribution error handling."""
@@ -256,6 +358,22 @@ class TestUnknownDistribution:
             sample_parameter_space(space, rng)
 
         assert "not_a_real_distribution" in str(excinfo.value)
+        assert "scipy.stats" in str(excinfo.value)
+
+    def test_scipy_attribute_not_distribution_raises_value_error(self):
+        """scipy.stats attribute that isn't a distribution raises ValueError."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: describe
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        with pytest.raises(ValueError) as excinfo:
+            sample_parameter_space(space, rng)
+
+        assert "describe" in str(excinfo.value)
         assert "scipy.stats" in str(excinfo.value)
 
 
