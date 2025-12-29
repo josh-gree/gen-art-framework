@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import builtins
+import keyword
 from dataclasses import dataclass
 from typing import Any
 
 import yaml
+
+# Names that would shadow Python builtins or cause issues when injected as globals
+RESERVED_PARAMETER_NAMES = frozenset(dir(builtins)) | frozenset(keyword.kwlist)
 
 
 @dataclass
@@ -74,6 +79,11 @@ def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
         raise ValueError(f"Parameter 'name' must be a string, got {type(name).__name__}")
     if not isinstance(distribution, str):
         raise ValueError(f"Parameter '{name}' 'distribution' must be a string, got {type(distribution).__name__}")
+
+    if name in RESERVED_PARAMETER_NAMES:
+        raise ValueError(
+            f"Parameter name '{name}' is reserved (shadows a Python builtin or keyword)"
+        )
 
     # Extract args (everything except name and distribution)
     args = {k: v for k, v in param_dict.items() if k not in ("name", "distribution")}

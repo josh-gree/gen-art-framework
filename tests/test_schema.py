@@ -246,6 +246,28 @@ class TestValidationErrors:
         with pytest.raises(ValueError, match="must not be empty"):
             parse_parameter_space(docstring)
 
+    def test_reserved_builtin_name_raises(self):
+        """Raises ValueError when parameter name shadows a Python builtin."""
+        docstring = dedent("""
+            parameters:
+              - name: print
+                distribution: constant
+                value: 1
+        """)
+        with pytest.raises(ValueError, match="'print' is reserved"):
+            parse_parameter_space(docstring)
+
+    def test_reserved_keyword_name_raises(self):
+        """Raises ValueError when parameter name is a Python keyword."""
+        docstring = dedent("""
+            parameters:
+              - name: for
+                distribution: constant
+                value: 1
+        """)
+        with pytest.raises(ValueError, match="'for' is reserved"):
+            parse_parameter_space(docstring)
+
     def test_parameters_none_raises(self):
         """Raises ValueError when parameters value is None."""
         docstring = dedent("""
