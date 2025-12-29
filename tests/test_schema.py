@@ -238,6 +238,22 @@ class TestValidationErrors:
         with pytest.raises(ValueError, match="'distribution' must be a string"):
             parse_parameter_space(docstring)
 
+    def test_empty_parameters_list_raises(self):
+        """Raises ValueError when parameters list is empty."""
+        docstring = dedent("""
+            parameters: []
+        """)
+        with pytest.raises(ValueError, match="must not be empty"):
+            parse_parameter_space(docstring)
+
+    def test_parameters_none_raises(self):
+        """Raises ValueError when parameters value is None."""
+        docstring = dedent("""
+            parameters:
+        """)
+        with pytest.raises(ValueError, match="must be a list"):
+            parse_parameter_space(docstring)
+
 
 class TestParameterSpace:
     """Tests for ParameterSpace container functionality."""

@@ -114,6 +114,9 @@ def parse_parameter_space(docstring: str) -> ParameterSpace:
     if not isinstance(data["parameters"], list):
         raise ValueError("'parameters' must be a list")
 
+    if len(data["parameters"]) == 0:
+        raise ValueError("'parameters' must not be empty")
+
     # Validate and convert each parameter
     parameters = [_validate_parameter(p) for p in data["parameters"]]
 
