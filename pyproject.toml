@@ -43,6 +43,10 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/gen_art_framework"]
+include = ["src/gen_art_framework/examples/*.py"]
+
 [dependency-groups]
 dev = [
     "ipython>=9.8.0",
@@ -51,3 +55,6 @@ dev = [
     "pytest-cov>=7.0.0",
     "ruff>=0.14.10",
 ]
+
+[tool.ruff]
+extend-exclude = ["src/gen_art_framework/examples/*.py"]

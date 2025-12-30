@@ -1,6 +1,7 @@
 """Command-line interface for gen-art-framework."""
 
 import ast
+from importlib.resources import files
 from pathlib import Path
 
 import click
@@ -104,6 +105,81 @@ def sample(script: Path, count: int, output: Path, seed: int | None):
         click.echo(f"  Saved: {image_path}", err=True)
 
     click.echo(f"Generated {count} image(s) in {output}", err=True)
+
+
+@cli.command()
+@click.argument("example", type=str)
+@click.option(
+    "--output",
+    "-o",
+    default=".",
+    type=click.Path(path_type=Path),
+    help="Output directory for example files.",
+)
+def install_example(example: str, output: Path):
+    """Install example scripts to your filesystem.
+
+    EXAMPLE is the name of an example to install, or "all" to install all examples.
+
+    Available examples: circles, flow_field
+    """
+    # Get available examples
+    examples_dict = _discover_examples()
+
+    if not examples_dict:
+        raise click.ClickException("No examples found in the package.")
+
+    # Determine which examples to install
+    if example == "all":
+        examples_to_install = examples_dict
+    elif example in examples_dict:
+        examples_to_install = {example: examples_dict[example]}
+    else:
+        available = ", ".join(sorted(examples_dict.keys()))
+        raise click.ClickException(
+            f"Unknown example '{example}'. Available examples: {available}"
+        )
+
+    # Create output directory if needed
+    output.mkdir(parents=True, exist_ok=True)
+
+    # Copy examples
+    for name, content in examples_to_install.items():
+        target_path = output / f"{name}.py"
+
+        # Check if file exists
+        if target_path.exists():
+            click.echo(f"Skipping {name}.py (already exists)", err=True)
+            continue
+
+        # Write file
+        target_path.write_text(content)
+        click.echo(f"Installed: {target_path}", err=True)
+
+    installed_count = len(examples_to_install)
+    click.echo(f"Installed {installed_count} example(s) to {output}", err=True)
+
+
+def _discover_examples() -> dict[str, str]:
+    """Discover available example scripts from the installed package.
+
+    Returns:
+        Dictionary mapping example names to their file contents.
+    """
+    examples = {}
+
+    try:
+        examples_path = files("gen_art_framework.examples")
+
+        for item in examples_path.iterdir():
+            if item.name.endswith(".py") and item.name != "__init__.py":
+                example_name = item.name[:-3]  # Remove .py extension
+                content = item.read_text()
+                examples[example_name] = content
+    except (AttributeError, FileNotFoundError):
+        pass
+
+    return examples
 
 
 def _extract_docstring(script_content: str) -> str | None:
