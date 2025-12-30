@@ -1,6 +1,6 @@
 # CLI Usage
 
-The `gen-art` command-line tool generates images by sampling from parameterised scripts.
+The `gen-art` command-line tool generates images by sampling from parameterised scripts and provides example scripts to help you get started.
 
 ## Commands
 
@@ -24,7 +24,52 @@ gen-art sample SCRIPT [OPTIONS]
 | `--output` | `-o` | `.` | Output directory for generated images |
 | `--seed` | `-s` | random | Random seed for reproducibility |
 
-## Output Filenames
+### `gen-art install-example`
+
+Copy example scripts from the package to your filesystem.
+
+```bash
+gen-art install-example EXAMPLE [OPTIONS]
+```
+
+**Arguments:**
+
+- `EXAMPLE` - Name of an example to install, or `all` to install all available examples
+
+**Options:**
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--output` | `-o` | `.` | Output directory for example files |
+
+**Available Examples:**
+
+- `circles` - Simple generative art with random circles
+- `flow_field` - Complex flow field animation using noise functions
+
+**Overwrite Protection:**
+
+The command will not overwrite existing files. If a file already exists at the target location, it will be skipped with a warning message.
+
+**Examples:**
+
+```bash
+# Install a single example to current directory
+gen-art install-example circles
+
+# Install all examples
+gen-art install-example all
+
+# Install to a specific directory
+gen-art install-example flow_field -o ./examples
+
+# Install all examples to a custom location
+gen-art install-example all --output ./my-scripts
+```
+
+## Sample Command Details
+
+### Output Filenames
 
 Generated images follow the naming pattern:
 
@@ -44,7 +89,7 @@ circles_1_9283746192.png
 circles_2_3847291028.png
 ```
 
-## Reproducibility
+### Reproducibility
 
 Use the `--seed` option to generate reproducible results:
 
@@ -54,7 +99,7 @@ gen-art sample my_script.py -n 5 -s 42
 gen-art sample my_script.py -n 5 -s 42
 ```
 
-### Two-Level Seeding
+#### Two-Level Seeding
 
 When you provide `--seed`, the CLI uses a two-level seeding mechanism:
 
@@ -78,7 +123,7 @@ Generating image 1/1...
 Generated 1 image(s) in .
 ```
 
-## Examples
+### Examples
 
 ```bash
 # Generate a single image in the current directory
