@@ -37,7 +37,3 @@ jupyter:
 build:
     rm -rf dist/
     uv build
-
-# Publish to PyPI (manual testing only - production uses GitHub Actions on tag push)
-publish: build
-    uv run twine upload dist/*
