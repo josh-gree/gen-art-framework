@@ -16,6 +16,7 @@ parameters:
   - name: line_colour
     distribution: choice
     values: ["#00d4ff", "#ff6b6b", "#c9f364", "#f8b500", "#7c3aed", "#06ffa5"]
+    mode: distribution
   - name: num_lines
     distribution: randint
     low: 400
@@ -24,14 +25,17 @@ parameters:
     distribution: randint
     low: 80
     high: 200
+    mode: distribution
   - name: line_width
     distribution: randint
     low: 1
     high: 3
+    mode: distribution
   - name: line_alpha
     distribution: uniform
     loc: 0.3
     scale: 0.5
+    mode: distribution
   - name: noise_scale
     distribution: uniform
     loc: 0.003
@@ -74,7 +78,13 @@ def draw_flow_line(start_x, start_y):
     x, y = start_x, start_y
     points = [(x, y)]
 
-    for _ in range(line_length):
+    # Sample line properties for this line
+    length = int(line_length.rvs())
+    lwidth = int(line_width.rvs())
+    alpha_mult = line_alpha.rvs()
+    colour = line_colour.rvs()
+
+    for _ in range(length):
         angle = noise_angle(x, y, noise_scale, noise_offset)
         x += math.cos(angle) * step_size
         y += math.sin(angle) * step_size
@@ -86,9 +96,9 @@ def draw_flow_line(start_x, start_y):
     if len(points) > 1:
         for i in range(len(points) - 1):
             progress = i / len(points)
-            alpha = int(255 * (1 - progress) * line_alpha)
-            colour_with_alpha = line_colour + f"{alpha:02x}"
-            draw.line([points[i], points[i + 1]], fill=colour_with_alpha, width=line_width)
+            alpha = int(255 * (1 - progress) * alpha_mult)
+            colour_with_alpha = colour + f"{alpha:02x}"
+            draw.line([points[i], points[i + 1]], fill=colour_with_alpha, width=lwidth)
 
 
 grid_size = int(math.sqrt(num_lines))

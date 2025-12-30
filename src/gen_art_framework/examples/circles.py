@@ -20,6 +20,12 @@ parameters:
   - name: colour
     distribution: choice
     values: ["#e94560", "#f39c12", "#00b894", "#6c5ce7"]
+    mode: distribution
+  - name: radius
+    distribution: randint
+    low: 10
+    high: 50
+    mode: distribution
 """
 
 from PIL import Image, ImageDraw
@@ -33,7 +39,8 @@ draw = ImageDraw.Draw(img)
 for _ in range(num_circles):
     x = random.randint(0, width)
     y = random.randint(0, height)
-    r = random.randint(10, 50)
-    draw.ellipse([x - r, y - r, x + r, y + r], fill=colour)
+    r = int(radius.rvs())
+    c = colour.rvs()
+    draw.ellipse([x - r, y - r, x + r, y + r], fill=c)
 
 img
