@@ -119,7 +119,10 @@ def sample_parameter_space(
 
 
 def _sample_distribution(
-    distribution: str, args: dict[str, Any], rng: np.random.Generator, mode: str = "sample"
+    distribution: str,
+    args: dict[str, Any],
+    rng: np.random.Generator,
+    mode: str = "sample",
 ) -> Any:
     """Sample a single value from a distribution or return a frozen distribution object.
 

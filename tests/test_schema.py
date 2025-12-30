@@ -277,6 +277,93 @@ class TestValidationErrors:
             parse_parameter_space(docstring)
 
 
+class TestModeValidation:
+    """Tests for mode field validation."""
+
+    def test_mode_defaults_to_sample(self):
+        """Mode field defaults to 'sample' when not specified."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+        """)
+        result = parse_parameter_space(docstring)
+        assert result["x"].mode == "sample"
+
+    def test_explicit_sample_mode(self):
+        """Mode field can be explicitly set to 'sample'."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: sample
+        """)
+        result = parse_parameter_space(docstring)
+        assert result["x"].mode == "sample"
+
+    def test_explicit_distribution_mode(self):
+        """Mode field can be explicitly set to 'distribution'."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: distribution
+        """)
+        result = parse_parameter_space(docstring)
+        assert result["x"].mode == "distribution"
+
+    def test_invalid_mode_raises(self):
+        """Raises ValueError when mode is not 'sample' or 'distribution'."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: invalid
+        """)
+        with pytest.raises(
+            ValueError, match="'mode' must be 'sample' or 'distribution', got 'invalid'"
+        ):
+            parse_parameter_space(docstring)
+
+    def test_non_string_mode_raises(self):
+        """Raises ValueError when mode is not 'sample' or 'distribution'."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: 123
+        """)
+        with pytest.raises(
+            ValueError, match="'mode' must be 'sample' or 'distribution', got '123'"
+        ):
+            parse_parameter_space(docstring)
+
+    def test_mode_not_in_args(self):
+        """Mode field is not included in parameter args."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: distribution
+        """)
+        result = parse_parameter_space(docstring)
+        assert "mode" not in result["x"].args
+        assert "loc" in result["x"].args
+        assert "scale" in result["x"].args
+
+
 class TestParameterSpace:
     """Tests for ParameterSpace container functionality."""
 
