@@ -34,6 +34,7 @@ class TestHelpOutput:
         assert result.exit_code == 0
         assert "Gen-art-framework" in result.output
         assert "sample" in result.output
+        assert "install-example" in result.output
 
     def test_sample_help(self):
         """Sample command shows help."""
@@ -284,3 +285,91 @@ Image.new("RGB", (10, 10))
 
         assert result.exit_code != 0
         assert "syntax error" in result.output
+
+
+class TestInstallExample:
+    """Tests for install-example command."""
+
+    def test_install_example_help(self):
+        """Install-example command shows help."""
+        runner = CliRunner()
+        result = runner.invoke(cli, ["install-example", "--help"])
+        assert result.exit_code == 0
+        assert "--output" in result.output
+        assert "Available examples" in result.output
+
+    def test_install_single_example(self, tmp_path: Path):
+        """Installs a single example to current directory."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli, ["install-example", "circles", "--output", str(output_dir)]
+        )
+
+        assert result.exit_code == 0
+        assert (output_dir / "circles.py").exists()
+        assert "Installed: " in result.output
+        assert "circles.py" in result.output
+        content = (output_dir / "circles.py").read_text()
+        assert "parameters:" in content
+        assert "num_circles" in content
+
+    def test_install_all_examples(self, tmp_path: Path):
+        """Installs all examples with 'all' keyword."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli, ["install-example", "all", "--output", str(output_dir)]
+        )
+
+        assert result.exit_code == 0
+        assert (output_dir / "circles.py").exists()
+        assert (output_dir / "flow_field.py").exists()
+        assert "Installed 2 example(s)" in result.output
+
+    def test_custom_output_directory(self, tmp_path: Path):
+        """Copies example to custom output directory."""
+        output_dir = tmp_path / "examples" / "nested"
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli, ["install-example", "circles", "--output", str(output_dir)]
+        )
+
+        assert result.exit_code == 0
+        assert output_dir.exists()
+        assert (output_dir / "circles.py").exists()
+
+    def test_overwrite_protection(self, tmp_path: Path):
+        """Warns and skips if file already exists."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        existing_file = output_dir / "circles.py"
+        existing_file.write_text("# existing content")
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli, ["install-example", "circles", "--output", str(output_dir)]
+        )
+
+        assert result.exit_code == 0
+        assert "Skipping circles.py (already exists)" in result.output
+        assert existing_file.read_text() == "# existing content"
+
+    def test_invalid_example_name(self, tmp_path: Path):
+        """Error for invalid example name."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli, ["install-example", "nonexistent", "--output", str(output_dir)]
+        )
+
+        assert result.exit_code != 0
+        assert "Unknown example" in result.output
+        assert "Available examples:" in result.output
