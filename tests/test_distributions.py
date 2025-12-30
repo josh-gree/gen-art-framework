@@ -406,3 +406,190 @@ class TestMultipleParameters:
         assert 0 <= result["x"] <= 1
         assert result["mode"] == "test"
         assert result["colour"] in ["red", "blue"]
+
+
+class TestDistributionMode:
+    """Tests for distribution mode returning distribution objects."""
+
+    def test_constant_distribution_object(self):
+        """Constant distribution mode returns object with .rvs() method."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: constant
+                value: 42
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+
+        assert hasattr(result["x"], "rvs")
+        assert result["x"].rvs() == 42
+        assert result["x"].rvs() == 42
+
+    def test_choice_distribution_object(self):
+        """Choice distribution mode returns object with .rvs() method."""
+        docstring = dedent("""
+            parameters:
+              - name: colour
+                distribution: choice
+                values: ["red", "green", "blue"]
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+
+        assert hasattr(result["colour"], "rvs")
+        assert result["colour"].rvs() in ["red", "green", "blue"]
+        assert result["colour"].rvs() in ["red", "green", "blue"]
+
+    def test_scipy_distribution_object(self):
+        """Scipy distribution mode returns frozen distribution object."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+
+        assert hasattr(result["x"], "rvs")
+        sample1 = result["x"].rvs()
+        sample2 = result["x"].rvs()
+        assert 0 <= sample1 <= 1
+        assert 0 <= sample2 <= 1
+
+    def test_distribution_reproducibility_with_seed(self):
+        """Distribution objects produce reproducible results with same seed."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+
+        rng1 = np.random.default_rng(42)
+        result1 = sample_parameter_space(space, rng1)
+        samples1 = [result1["x"].rvs() for _ in range(5)]
+
+        rng2 = np.random.default_rng(42)
+        result2 = sample_parameter_space(space, rng2)
+        samples2 = [result2["x"].rvs() for _ in range(5)]
+
+        assert samples1 == samples2
+
+    def test_choice_distribution_reproducibility(self):
+        """Choice distribution objects produce reproducible results."""
+        docstring = dedent("""
+            parameters:
+              - name: colour
+                distribution: choice
+                values: ["red", "green", "blue"]
+                weights: [0.5, 0.3, 0.2]
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+
+        rng1 = np.random.default_rng(42)
+        result1 = sample_parameter_space(space, rng1)
+        samples1 = [result1["colour"].rvs() for _ in range(10)]
+
+        rng2 = np.random.default_rng(42)
+        result2 = sample_parameter_space(space, rng2)
+        samples2 = [result2["colour"].rvs() for _ in range(10)]
+
+        assert samples1 == samples2
+
+    def test_mixed_mode_sample_and_distribution(self):
+        """Can mix sample and distribution modes in same parameter space."""
+        docstring = dedent("""
+            parameters:
+              - name: seed
+                distribution: constant
+                value: 42
+                mode: sample
+              - name: x_dist
+                distribution: uniform
+                loc: 0
+                scale: 1
+                mode: distribution
+              - name: colour
+                distribution: choice
+                values: ["red", "blue"]
+                mode: sample
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+
+        assert result["seed"] == 42
+        assert hasattr(result["x_dist"], "rvs")
+        assert 0 <= result["x_dist"].rvs() <= 1
+        assert result["colour"] in ["red", "blue"]
+        assert not hasattr(result["colour"], "rvs")
+
+    def test_default_mode_is_sample(self):
+        """Parameters without mode field default to sample mode."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: uniform
+                loc: 0
+                scale: 1
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+
+        assert isinstance(result["x"], (float, np.floating))
+        assert not hasattr(result["x"], "rvs")
+
+    def test_constant_distribution_with_size(self):
+        """ConstantDistribution supports size parameter."""
+        docstring = dedent("""
+            parameters:
+              - name: x
+                distribution: constant
+                value: 5
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+        samples = result["x"].rvs(size=3)
+
+        assert len(samples) == 3
+        assert all(s == 5 for s in samples)
+
+    def test_choice_distribution_with_size(self):
+        """ChoiceDistribution supports size parameter."""
+        docstring = dedent("""
+            parameters:
+              - name: colour
+                distribution: choice
+                values: ["red", "green"]
+                mode: distribution
+        """)
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+
+        result = sample_parameter_space(space, rng)
+        samples = result["colour"].rvs(size=5)
+
+        assert len(samples) == 5
+        assert all(s in ["red", "green"] for s in samples)

@@ -138,6 +138,149 @@ Continuous and discrete distributions from `scipy.stats` can be used by name (`r
 
 See the [scipy.stats documentation](https://docs.scipy.org/doc/scipy/reference/stats.html) for the full list of available distributions and their parameters.
 
+## Distribution Mode
+
+By default, parameters are sampled once and injected as fixed values into your script. However, you can set `mode: distribution` to receive a distribution object instead, allowing you to sample multiple values within your script.
+
+### Basic Usage
+
+Add `mode: distribution` to any parameter definition:
+
+```yaml
+- name: x_dist
+  distribution: uniform
+  loc: 0
+  scale: 100
+  mode: distribution
+```
+
+The parameter `x_dist` will be a distribution object with a `.rvs()` method for sampling:
+
+```python
+# Sample a single value
+value = x_dist.rvs()
+
+# Sample multiple values
+values = [x_dist.rvs() for _ in range(10)]
+
+# Sample an array of values
+array = x_dist.rvs(size=5)
+```
+
+### Reproducibility
+
+Distribution objects maintain the random seed provided to the CLI, ensuring reproducible results:
+
+```bash
+# These will produce identical outputs
+gen-art sample script.py -s 42
+gen-art sample script.py -s 42
+```
+
+Within your script, multiple calls to `.rvs()` produce the same sequence with the same seed:
+
+```python
+# With seed 42, these values will always be the same
+val1 = x_dist.rvs()
+val2 = x_dist.rvs()
+val3 = x_dist.rvs()
+```
+
+### Supported Distributions
+
+All distribution types support distribution mode:
+
+**Constant distributions:**
+```yaml
+- name: base_size
+  distribution: constant
+  value: 10
+  mode: distribution
+```
+```python
+# Always returns 10
+size = base_size.rvs()
+sizes = base_size.rvs(size=3)  # [10, 10, 10]
+```
+
+**Choice distributions:**
+```yaml
+- name: colour_dist
+  distribution: choice
+  values: ["red", "green", "blue"]
+  weights: [0.5, 0.3, 0.2]
+  mode: distribution
+```
+```python
+# Sample colours multiple times
+colours = [colour_dist.rvs() for _ in range(100)]
+```
+
+**Scipy distributions:**
+```yaml
+- name: radius_dist
+  distribution: norm
+  loc: 50
+  scale: 10
+  mode: distribution
+```
+```python
+# Sample radii for multiple circles
+radii = [radius_dist.rvs() for _ in range(num_circles)]
+```
+
+### Mixed Mode Example
+
+You can mix sample and distribution modes in the same parameter space:
+
+```yaml
+parameters:
+  - name: width
+    distribution: constant
+    value: 800
+    mode: sample        # width is a fixed integer
+
+  - name: radius_dist
+    distribution: uniform
+    loc: 10
+    scale: 40
+    mode: distribution  # radius_dist is a distribution object
+
+  - name: num_circles
+    distribution: randint
+    low: 50
+    high: 100
+    mode: sample        # num_circles is a sampled integer
+```
+
+```python
+from PIL import Image, ImageDraw
+import random
+
+img = Image.new("RGB", (width, width), "white")
+draw = ImageDraw.Draw(img)
+
+# Sample different radius for each circle
+for _ in range(num_circles):
+    x = random.randint(0, width)
+    y = random.randint(0, width)
+    r = int(radius_dist.rvs())  # Different radius each time
+    draw.ellipse([x - r, y - r, x + r, y + r], fill="black")
+
+img
+```
+
+### When to Use Distribution Mode
+
+**Use `mode: sample` (default) when:**
+- You want a single value for the entire image
+- The parameter represents a global property (size, background colour, seed)
+
+**Use `mode: distribution` when:**
+- You need multiple different values in one image
+- Each element should have variation (different sizes, colours, positions)
+- You want to maintain reproducibility whilst sampling many values
+
 ## Type Summary
 
 | Distribution | Output Type | Range |

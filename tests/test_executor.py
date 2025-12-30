@@ -189,3 +189,128 @@ Image.new("RGB", (10, 10))
 """)
         with pytest.raises(ValueError, match="must end with an expression"):
             execute_script(script, {})
+
+
+class TestDistributionModeIntegration:
+    """Integration tests for distribution mode with script execution."""
+
+    def test_script_can_sample_from_distribution_parameter(self, tmp_path: Path):
+        """Scripts can call .rvs() on distribution parameters."""
+        from textwrap import dedent
+
+        import numpy as np
+
+        from gen_art_framework import parse_parameter_space, sample_parameter_space
+
+        docstring = dedent("""
+            parameters:
+              - name: x_dist
+                distribution: uniform
+                loc: 0
+                scale: 100
+                mode: distribution
+        """)
+
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+        params = sample_parameter_space(space, rng)
+
+        script = tmp_path / "script.py"
+        script.write_text("""
+from PIL import Image
+import numpy as np
+
+# Sample multiple values from the distribution
+values = [x_dist.rvs() for _ in range(5)]
+
+# Use one of the values
+width = int(values[0])
+Image.new("RGB", (width, 50))
+""")
+
+        result = execute_script(script, params)
+        assert isinstance(result, Image.Image)
+        assert result.size[1] == 50
+        assert 0 <= result.size[0] <= 100
+
+    def test_distribution_mode_reproducibility_in_script(self, tmp_path: Path):
+        """Distribution parameters produce reproducible results in scripts."""
+        from textwrap import dedent
+
+        import numpy as np
+
+        from gen_art_framework import parse_parameter_space, sample_parameter_space
+
+        docstring = dedent("""
+            parameters:
+              - name: colour_dist
+                distribution: choice
+                values: ["red", "green", "blue"]
+                mode: distribution
+        """)
+
+        script = tmp_path / "script.py"
+        script.write_text("""
+from PIL import Image
+
+# Sample colour multiple times
+colours = [colour_dist.rvs() for _ in range(10)]
+
+# Create image with first colour
+Image.new("RGB", (10, 10), colours[0])
+""")
+
+        # Execute with same seed twice
+        rng1 = np.random.default_rng(42)
+        space1 = parse_parameter_space(docstring)
+        params1 = sample_parameter_space(space1, rng1)
+        result1 = execute_script(script, params1)
+
+        rng2 = np.random.default_rng(42)
+        space2 = parse_parameter_space(docstring)
+        params2 = sample_parameter_space(space2, rng2)
+        result2 = execute_script(script, params2)
+
+        # Results should be identical (same colour selected)
+        assert result1.getpixel((0, 0)) == result2.getpixel((0, 0))
+
+    def test_mixed_sample_and_distribution_modes(self, tmp_path: Path):
+        """Scripts can use both sampled values and distribution objects."""
+        from textwrap import dedent
+
+        import numpy as np
+
+        from gen_art_framework import parse_parameter_space, sample_parameter_space
+
+        docstring = dedent("""
+            parameters:
+              - name: width
+                distribution: constant
+                value: 100
+                mode: sample
+              - name: height_dist
+                distribution: uniform
+                loc: 50
+                scale: 50
+                mode: distribution
+        """)
+
+        space = parse_parameter_space(docstring)
+        rng = np.random.default_rng(42)
+        params = sample_parameter_space(space, rng)
+
+        script = tmp_path / "script.py"
+        script.write_text("""
+from PIL import Image
+
+# width is a sampled value (integer)
+# height_dist is a distribution object
+height = int(height_dist.rvs())
+
+Image.new("RGB", (width, height))
+""")
+
+        result = execute_script(script, params)
+        assert isinstance(result, Image.Image)
+        assert result.size[0] == 100
+        assert 50 <= result.size[1] <= 100

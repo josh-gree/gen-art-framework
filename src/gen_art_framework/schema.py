@@ -20,6 +20,7 @@ class ParameterDefinition:
     name: str
     distribution: str
     args: dict[str, Any]
+    mode: str = "sample"
 
 
 @dataclass
@@ -91,10 +92,21 @@ def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
             f"Parameter name '{name}' is reserved (shadows a Python builtin or keyword)"
         )
 
-    # Extract args (everything except name and distribution)
-    args = {k: v for k, v in param_dict.items() if k not in ("name", "distribution")}
+    # Extract and validate mode
+    mode = param_dict.get("mode", "sample")
+    if not isinstance(mode, str):
+        raise ValueError(
+            f"Parameter '{name}' 'mode' must be a string, got {type(mode).__name__}"
+        )
+    if mode not in ("sample", "distribution"):
+        raise ValueError(
+            f"Parameter '{name}' 'mode' must be 'sample' or 'distribution', got '{mode}'"
+        )
 
-    return ParameterDefinition(name=name, distribution=distribution, args=args)
+    # Extract args (everything except name, distribution, and mode)
+    args = {k: v for k, v in param_dict.items() if k not in ("name", "distribution", "mode")}
+
+    return ParameterDefinition(name=name, distribution=distribution, args=args, mode=mode)
 
 
 def parse_parameter_space(docstring: str) -> ParameterSpace:
