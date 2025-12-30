@@ -19,9 +19,7 @@ from PIL import Image
 img = Image.new("RGB", (width, height), colour)
 img
 """)
-        result = execute_script(
-            script, {"width": 100, "height": 50, "colour": "red"}
-        )
+        result = execute_script(script, {"width": 100, "height": 50, "colour": "red"})
         assert result.size == (100, 50)
 
     def test_empty_parameters(self, tmp_path: Path):

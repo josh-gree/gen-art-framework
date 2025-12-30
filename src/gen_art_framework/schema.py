@@ -70,15 +70,21 @@ def _validate_parameter(param_dict: dict[str, Any]) -> ParameterDefinition:
     if "name" not in param_dict:
         raise ValueError("Parameter definition missing 'name' field")
     if "distribution" not in param_dict:
-        raise ValueError(f"Parameter '{param_dict['name']}' missing 'distribution' field")
+        raise ValueError(
+            f"Parameter '{param_dict['name']}' missing 'distribution' field"
+        )
 
     name = param_dict["name"]
     distribution = param_dict["distribution"]
 
     if not isinstance(name, str):
-        raise ValueError(f"Parameter 'name' must be a string, got {type(name).__name__}")
+        raise ValueError(
+            f"Parameter 'name' must be a string, got {type(name).__name__}"
+        )
     if not isinstance(distribution, str):
-        raise ValueError(f"Parameter '{name}' 'distribution' must be a string, got {type(distribution).__name__}")
+        raise ValueError(
+            f"Parameter '{name}' 'distribution' must be a string, got {type(distribution).__name__}"
+        )
 
     if name in RESERVED_PARAMETER_NAMES:
         raise ValueError(
@@ -134,6 +140,8 @@ def parse_parameter_space(docstring: str) -> ParameterSpace:
     names = [p.name for p in parameters]
     duplicates = [name for name in names if names.count(name) > 1]
     if duplicates:
-        raise ValueError(f"Duplicate parameter names: {', '.join(sorted(set(duplicates)))}")
+        raise ValueError(
+            f"Duplicate parameter names: {', '.join(sorted(set(duplicates)))}"
+        )
 
     return ParameterSpace(parameters=parameters)

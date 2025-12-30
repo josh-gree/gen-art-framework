@@ -55,11 +55,9 @@ class TestBasicGeneration:
         output_dir = tmp_path / "output"
 
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            "sample", str(script),
-            "--output", str(output_dir),
-            "--seed", "42"
-        ])
+        result = runner.invoke(
+            cli, ["sample", str(script), "--output", str(output_dir), "--seed", "42"]
+        )
 
         assert result.exit_code == 0
         images = list(output_dir.glob("*.png"))
@@ -72,12 +70,19 @@ class TestBasicGeneration:
         output_dir = tmp_path / "output"
 
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            "sample", str(script),
-            "--count", "5",
-            "--output", str(output_dir),
-            "--seed", "42"
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "sample",
+                str(script),
+                "--count",
+                "5",
+                "--output",
+                str(output_dir),
+                "--seed",
+                "42",
+            ],
+        )
 
         assert result.exit_code == 0
         images = list(output_dir.glob("*.png"))
@@ -90,11 +95,9 @@ class TestBasicGeneration:
         output_dir = tmp_path / "nested" / "output" / "dir"
 
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            "sample", str(script),
-            "--output", str(output_dir),
-            "--seed", "42"
-        ])
+        result = runner.invoke(
+            cli, ["sample", str(script), "--output", str(output_dir), "--seed", "42"]
+        )
 
         assert result.exit_code == 0
         assert output_dir.exists()
@@ -111,18 +114,32 @@ class TestSeedReproducibility:
         output2 = tmp_path / "output2"
 
         runner = CliRunner()
-        runner.invoke(cli, [
-            "sample", str(script),
-            "--count", "3",
-            "--output", str(output1),
-            "--seed", "12345"
-        ])
-        runner.invoke(cli, [
-            "sample", str(script),
-            "--count", "3",
-            "--output", str(output2),
-            "--seed", "12345"
-        ])
+        runner.invoke(
+            cli,
+            [
+                "sample",
+                str(script),
+                "--count",
+                "3",
+                "--output",
+                str(output1),
+                "--seed",
+                "12345",
+            ],
+        )
+        runner.invoke(
+            cli,
+            [
+                "sample",
+                str(script),
+                "--count",
+                "3",
+                "--output",
+                str(output2),
+                "--seed",
+                "12345",
+            ],
+        )
 
         images1 = sorted(output1.glob("*.png"))
         images2 = sorted(output2.glob("*.png"))
@@ -140,16 +157,12 @@ class TestSeedReproducibility:
         output2 = tmp_path / "output2"
 
         runner = CliRunner()
-        runner.invoke(cli, [
-            "sample", str(script),
-            "--output", str(output1),
-            "--seed", "111"
-        ])
-        runner.invoke(cli, [
-            "sample", str(script),
-            "--output", str(output2),
-            "--seed", "222"
-        ])
+        runner.invoke(
+            cli, ["sample", str(script), "--output", str(output1), "--seed", "111"]
+        )
+        runner.invoke(
+            cli, ["sample", str(script), "--output", str(output2), "--seed", "222"]
+        )
 
         name1 = list(output1.glob("*.png"))[0].name
         name2 = list(output2.glob("*.png"))[0].name
@@ -167,12 +180,19 @@ class TestFilenameFormat:
         output_dir = tmp_path / "output"
 
         runner = CliRunner()
-        runner.invoke(cli, [
-            "sample", str(script),
-            "--count", "3",
-            "--output", str(output_dir),
-            "--seed", "42"
-        ])
+        runner.invoke(
+            cli,
+            [
+                "sample",
+                str(script),
+                "--count",
+                "3",
+                "--output",
+                str(output_dir),
+                "--seed",
+                "42",
+            ],
+        )
 
         images = sorted(output_dir.glob("*.png"))
         assert len(images) == 3
@@ -197,12 +217,19 @@ class TestProgressOutput:
         output_dir = tmp_path / "output"
 
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            "sample", str(script),
-            "--count", "2",
-            "--output", str(output_dir),
-            "--seed", "42"
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "sample",
+                str(script),
+                "--count",
+                "2",
+                "--output",
+                str(output_dir),
+                "--seed",
+                "42",
+            ],
+        )
 
         assert result.exit_code == 0
         assert "Generating image 1/2" in result.output
@@ -243,9 +270,7 @@ Image.new("RGB", (10, 10))
     def test_nonexistent_script(self, tmp_path: Path):
         """Error for non-existent script file."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            "sample", str(tmp_path / "nonexistent.py")
-        ])
+        result = runner.invoke(cli, ["sample", str(tmp_path / "nonexistent.py")])
 
         assert result.exit_code != 0
 

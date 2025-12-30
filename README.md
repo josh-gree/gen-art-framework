@@ -1,5 +1,7 @@
 # gen-art-framework
 
+[![CI](https://github.com/josh-gree/gen-art-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-gree/gen-art-framework/actions/workflows/ci.yml)
+
 A Python framework for generating art from parameterised scripts. Define parameter distributions in YAML, and the framework samples from them to create unique variations of your artwork.
 
 ## Installation
@@ -70,6 +72,31 @@ gen-art sample my_script.py -n 5 -o ./output -s 42
 ```
 
 Output files are named `{script_name}_{index}_{seed}.png`.
+
+## Contributing
+
+### Development Workflow
+
+1. Create a PR with your changes
+2. Before merging, bump the version using `just bump patch|minor|major`:
+   - `patch` (0.1.1 → 0.1.2) for bug fixes
+   - `minor` (0.1.1 → 0.2.0) for new features
+   - `major` (0.1.1 → 1.0.0) for breaking changes
+3. Commit the version bump to your PR
+4. CI will verify the version was changed and run all checks
+5. Once merged to main, the package automatically publishes to PyPI
+
+The CI checks will fail if:
+- Version wasn't bumped (prevents accidental overwrites)
+- Tests fail
+- Linting errors exist
+- Code isn't properly formatted
+
+Run checks locally:
+- `just test` - run tests
+- `just lint` - check linting
+- `just fmt` - format code
+- `just check` - format and lint together
 
 ## Documentation
 

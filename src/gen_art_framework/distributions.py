@@ -28,9 +28,7 @@ def sample_parameter_space(
     result = {}
 
     for param in space:
-        result[param.name] = _sample_distribution(
-            param.distribution, param.args, rng
-        )
+        result[param.name] = _sample_distribution(param.distribution, param.args, rng)
 
     return result
 
@@ -62,7 +60,9 @@ def _sample_distribution(
             raise ValueError("'choice' distribution requires a 'values' argument.")
         values = args["values"]
         if not values:
-            raise ValueError("'choice' distribution requires a non-empty 'values' list.")
+            raise ValueError(
+                "'choice' distribution requires a non-empty 'values' list."
+            )
         weights = args.get("weights")
         if weights is not None and len(weights) != len(values):
             raise ValueError(
