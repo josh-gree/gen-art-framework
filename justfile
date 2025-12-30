@@ -93,5 +93,5 @@ release bump message:
     git push origin "$NEW_VERSION"
 
     echo "Released $NEW_VERSION"
-    REPO=$(git remote get-url origin | sed 's/.*://;s/.git$//')
+    REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
     echo "CI workflow: https://github.com/$REPO/actions"
