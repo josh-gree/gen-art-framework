@@ -1,6 +1,6 @@
 [project]
 name = "gen-art-framework"
-version = "0.1.2"
+dynamic = ["version"]
 description = "A framework for creating generative art with Python"
 readme = "README.md"
 authors = [
@@ -37,8 +37,11 @@ Issues = "https://github.com/josh-gree/gen-art-framework/issues"
 gen-art = "gen_art_framework.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.9.18,<0.10.0"]
-build-backend = "uv_build"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
 
 [dependency-groups]
 dev = [
@@ -47,6 +50,5 @@ dev = [
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "ruff>=0.14.10",
-    "tomlkit>=0.13.3",
     "twine>=6.2.0",
 ]

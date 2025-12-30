@@ -78,21 +78,26 @@ Output files are named `{script_name}_{index}_{seed}.png`.
 ### Development Workflow
 
 1. Create a PR with your changes
-2. Before merging, bump the version using `just bump patch|minor|major`:
-   - `patch` (0.1.1 → 0.1.2) for bug fixes
-   - `minor` (0.1.1 → 0.2.0) for new features
-   - `major` (0.1.1 → 1.0.0) for breaking changes
-3. Commit the version bump to your PR
-4. CI will verify the version was changed and run all checks
-5. Once merged to main, the package automatically publishes to PyPI
+2. CI will run tests, linting, and formatting checks
+3. Once approved and merged to main, your changes are in the codebase
+4. When ready to release, create and push a version tag:
+   ```bash
+   git tag v0.1.3        # Use semantic versioning: vMAJOR.MINOR.PATCH
+   git push origin v0.1.3
+   ```
+5. The tag push automatically triggers a build and publishes to PyPI
 
-The CI checks will fail if:
-- Version wasn't bumped (prevents accidental overwrites)
-- Tests fail
-- Linting errors exist
-- Code isn't properly formatted
+**Version numbering:**
+- `patch` (v0.1.1 → v0.1.2) for bug fixes
+- `minor` (v0.1.1 → v0.2.0) for new features
+- `major` (v0.1.1 → v1.0.0) for breaking changes
 
-Run checks locally:
+**CI checks:**
+- Tests must pass
+- No linting errors
+- Code must be properly formatted
+
+**Run checks locally:**
 - `just test` - run tests
 - `just lint` - check linting
 - `just fmt` - format code
