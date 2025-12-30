@@ -63,7 +63,7 @@ class ChoiceDistribution:
             idx = self._rng.choice(len(self._values), p=self._weights)
             return self._values[idx]
         indices = self._rng.choice(len(self._values), size=size, p=self._weights)
-        return [self._values[i] for i in indices]
+        return np.array([self._values[i] for i in indices])
 
 
 class ScipyDistributionWrapper:
