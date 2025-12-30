@@ -8,9 +8,7 @@ from typing import Any
 from PIL import Image
 
 
-def execute_script(
-    script_path: Path | str, parameters: dict[str, Any]
-) -> Image.Image:
+def execute_script(script_path: Path | str, parameters: dict[str, Any]) -> Image.Image:
     """Execute a script file with parameters injected as globals.
 
     The script is executed using exec() with full system access. Only run

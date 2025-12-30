@@ -1,5 +1,7 @@
 # gen-art-framework
 
+[![CI](https://github.com/josh-gree/gen-art-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-gree/gen-art-framework/actions/workflows/ci.yml)
+
 A Python framework for generating art from parameterised scripts. Define parameter distributions in YAML, and the framework samples from them to create unique variations of your artwork.
 
 ## Installation
@@ -70,6 +72,36 @@ gen-art sample my_script.py -n 5 -o ./output -s 42
 ```
 
 Output files are named `{script_name}_{index}_{seed}.png`.
+
+## Contributing
+
+### Development Workflow
+
+1. Create a PR with your changes
+2. CI will run tests, linting, and formatting checks
+3. Once approved and merged to main, your changes are in the codebase
+4. When ready to release, create and push a version tag:
+   ```bash
+   git tag v0.1.3        # Use semantic versioning: vMAJOR.MINOR.PATCH
+   git push origin v0.1.3
+   ```
+5. The tag push automatically triggers a build and publishes to PyPI
+
+**Version numbering:**
+- `patch` (v0.1.1 → v0.1.2) for bug fixes
+- `minor` (v0.1.1 → v0.2.0) for new features
+- `major` (v0.1.1 → v1.0.0) for breaking changes
+
+**CI checks:**
+- Tests must pass
+- No linting errors
+- Code must be properly formatted
+
+**Run checks locally:**
+- `just test` - run tests
+- `just lint` - check linting
+- `just fmt` - format code
+- `just check` - format and lint together
 
 ## Documentation
 
